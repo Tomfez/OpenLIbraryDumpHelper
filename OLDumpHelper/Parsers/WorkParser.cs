@@ -4,29 +4,28 @@ using System.Text.Json;
 namespace OLDumpHelper.Parsers
 {
     /// <summary>
-    /// Parser for authors
+    /// Parser for works
     /// </summary>
-    public class AuthorParser
+    public class WorkParser
     {
         private string _filePath;
 
         /// <summary>
-        /// AuthorParser
+        /// Constructor
         /// </summary>
         /// <param name="filePath"></param>
-        public AuthorParser(string filePath)
+        public WorkParser(string filePath)
         {
             _filePath = filePath;
         }
 
         /// <summary>
-        /// Read the authors file and parse data to Json format
+        /// Read the work file
         /// </summary>
-        /// <returns></returns>
         public void ReadFile()
         {
             int i = 0;
-            List<Author?> authors = new();
+            List<Work?> works = new();
             int v = 0;
 
             using (StreamReader sr = new StreamReader(_filePath))
@@ -42,33 +41,42 @@ namespace OLDumpHelper.Parsers
                         break;
 
                     string[]? values = line.Split('\t');
+                    Work? work = null;
 
-                    Author? author = JsonSerializer.Deserialize<Author>(values[4]);
-                    authors.Add(author);
+                    try
+                    {
+                        work = JsonSerializer.Deserialize<Work>(values[4]);
+                    }
+                    catch (JsonException)
+                    {
+                        throw;
+                    }
+
+                    works.Add(work);
                     i++;
 
-                    // If we hit 2000000 rows, we create another file to avoid huge file
                     if (i == 2000000)
                     {
-                        WriteNewFormatToFiles(authors, v);
+                        WriteNewFormatToFiles(works, v);
 
-                        authors.Clear();
+                        works.Clear();
                         v += 1;
                         i = 0;
                     }
+
                 }
             }
         }
 
         /// <summary>
-        /// Create new Json file and write new format into it
+        /// Write the data to a new file
         /// </summary>
-        /// <param name="authors"></param>
+        /// <param name="works"></param>
         /// <param name="v"></param>
-        private void WriteNewFormatToFiles(List<Author?> authors, int v)
+        public void WriteNewFormatToFiles(List<Work?> works, int v)
         {
-            string newPath = Environment.ExpandEnvironmentVariables(Const.USER_FOLDER) + "\\" + Const.TEMP_FOLDER + "\\OLDumpAuthors" + v + ".json";
-            IEnumerable<string>? lines = authors.Select(obj => JsonSerializer.Serialize(obj));
+            string newPath = Environment.ExpandEnvironmentVariables(Const.USER_FOLDER) + "\\" + Const.TEMP_FOLDER + "\\OLDumpWorks" + v + ".json";
+            IEnumerable<string>? lines = works.Select(obj => JsonSerializer.Serialize(obj));
 
             using (StreamWriter sw = new StreamWriter(newPath))
             {

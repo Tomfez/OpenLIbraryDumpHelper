@@ -58,7 +58,9 @@ namespace OLDumpHelper
             }
 
             ClearFiles();
-            //AuthorParser authorParser = new AuthorParser(filePath!);
+
+            WorkParser workParser = new WorkParser(filePath!);
+            workParser.ReadFile();
             //List<Author>? authors = authorParser.ReadFile();
             //List<string> listAuthors = ReadAuthorFile();
 
@@ -80,7 +82,7 @@ namespace OLDumpHelper
 
             ClearFiles();
             AuthorParser authorParser = new AuthorParser(filePath!);
-            List<Author?> authors = authorParser.ReadFile();
+            authorParser.ReadFile();
         }
 
         /// <summary>
